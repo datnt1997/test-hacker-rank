@@ -4,8 +4,11 @@ import "./index.css";
 function NotesApp() {
   const [noteArray, setNoteArray] = useState([]);
   const [displayArray, setDisplayArray] = useState([]);
+  const [activeArray, setActiveArray] = useState([]);
+  const [completedArray, setCompletedArray] = useState([]);
   const [noteTitle, setNoteTile] = useState('');
   const [noteStatus, setNoteStatus] = useState('');
+  const [currentTab, setCurrentTab] = useState('All');
 
   const onChangeNoteTitle = (e) => {
     setNoteTile(e?.target?.value || '');
@@ -18,9 +21,34 @@ function NotesApp() {
   const addNote = () => {
     const noteObject = { noteTitle, noteStatus };
     let newNoteArray = [...noteArray];
-    newNoteArray.push(noteObject);
-    setNoteArray(newNoteArray);
-    setDisplayArray(newNoteArray);
+    let newActiveArray = [...activeArray];
+    let newCompletedArray = [...completedArray];
+    switch(noteStatus.toLowerCase()){
+      case 'active':
+        newActiveArray.push(noteObject);
+        setActiveArray(newActiveArray);
+        break;
+      case 'completed':
+        newCompletedArray.push(noteObject);
+        setCompletedArray(newCompletedArray);
+        break;
+      default:
+        newNoteArray.push(noteObject);
+        setNoteArray(newNoteArray);
+        break;
+    }
+    let newDisplayArray = [];
+    switch(currentTab){
+      case 'Active':
+        newDisplayArray = [...activeArray];
+        break;
+      case 'Completed':
+        newDisplayArray = [...completedArray];
+        default:
+        newDisplayArray = [...newActiveArray, ...newCompletedArray, ...newNoteArray];
+        break;
+    }
+    setDisplayArray(newDisplayArray);
     setNoteStatus('');
     setNoteTile('');
   }
@@ -28,13 +56,18 @@ function NotesApp() {
   const displayData = (type) => {
     let displayArray = [];
 
-    if (type === 'Active' || type === 'Completed') {
-      displayArray = noteArray.filter(item => item.noteStatus === type);
-    } else {
-      displayArray = [...noteArray];
+    switch(type){
+      case 'Active':
+        displayArray = [...activeArray];
+        break;
+      case 'Completed':
+        displayArray = [...completedArray];
+        break;
+      default:
+        displayArray = [...activeArray, ...completedArray, ...noteArray]
+        break;
     }
-
-
+    setCurrentTab(type);
     setDisplayArray(displayArray);
   }
 
